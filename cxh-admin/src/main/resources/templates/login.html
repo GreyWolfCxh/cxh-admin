@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+    <title>登录cxh管理系统</title>
+    <meta name="description" content="cxh管理系统">
+    <link href="../static/css/bootstrap.min.css" th:href="@{/css/bootstrap.min.css}" rel="stylesheet"/>
+    <link href="../static/css/font-awesome.min.css" th:href="@{/css/font-awesome.min.css}" rel="stylesheet"/>
+    <link href="../static/css/style.min.css" th:href="@{/css/style.min.css}" rel="stylesheet"/>
+    <link href="../static/css/login.min.css" th:href="@{/css/login.min.css}" rel="stylesheet"/>
+    <link href="../static/cxh/css/cxh-ui.css" th:href="@{/cxh/css/cxh-ui.css?v=4.7.2}" rel="stylesheet"/>
+    <!-- 360浏览器急速模式 -->
+    <meta name="renderer" content="webkit">
+    <!-- 避免IE使用兼容模式 -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="../static/favicon.ico" th:href="@{favicon.ico}"/>
+    <style type="text/css">label.error { position:inherit;  }</style>
+    <script>
+        if(window.top!==window.self){alert('未登录或登录超时。请重新登录');window.top.location=window.location};
+    </script>
+</head>
+<body class="signin">
+    <div class="signinpanel">
+        <div class="row">
+            <div class="col-sm-6">
+
+            </div>
+            <div class="col-sm-6">
+                <form id="signupForm" autocomplete="off">
+                    <h3>欢迎使用 <strong>cxh后台管理系统</strong></h3>
+                    <input type="text"     name="username" class="form-control uname"     placeholder="用户名" value="admin"    />
+                    <input type="password" name="password" class="form-control pword"     placeholder="密码"   value="admin123" />
+					<div class="row m-t" th:if="${captchaEnabled==true}">
+						<div class="col-xs-6">
+						    <input type="text" name="validateCode" class="form-control code" placeholder="验证码" maxlength="5" />
+						</div>
+						<div class="col-xs-6">
+							<a href="javascript:void(0);" title="点击更换验证码">
+								<img th:src="@{/captcha/captchaImage(type=${captchaType})}" class="imgcode" width="85%"/>
+							</a>
+						</div>
+					</div>
+                    <div class="checkbox-custom" th:if="${isRemembered}" th:classappend="${captchaEnabled==false} ? 'm-t'">
+				        <input type="checkbox" id="rememberme" name="rememberme"> <label for="rememberme">记住我</label>
+				    </div>
+                    </br>
+                    <div align="center">
+                    <button class="btn btn-success" type="button" onclick="login()"  data-loading="正在验证登录，请稍候...">登录</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+<script th:inline="javascript"> var ctx = [[@{/}]]; var captchaType = [[${captchaType}]];</script>
+<!--[if lte IE 8]><script>window.location.href=ctx+'html/ie.html';</script><![endif]-->
+<!-- 全局js -->
+<script src="../static/js/jquery.min.js" th:src="@{/js/jquery.min.js}"></script>
+<script src="../static/ajax/libs/validate/jquery.validate.min.js" th:src="@{/ajax/libs/validate/jquery.validate.min.js}"></script>
+<script src="../static/ajax/libs/layer/layer.min.js" th:src="@{/ajax/libs/layer/layer.min.js}"></script>
+<script src="../static/ajax/libs/blockUI/jquery.blockUI.js" th:src="@{/ajax/libs/blockUI/jquery.blockUI.js}"></script>
+<script src="../static/cxh/js/cxh-ui.js" th:src="@{/cxh/js/cxh-ui.js}"></script>
+<script>
+    function login() {
+    var username = $("input[name='username']").val();
+    var password = $("input[name='password']").val();
+    var validateCode = $("input[name='validateCode']").val();
+    var rememberMe = $("input[name='rememberme']").is(':checked');
+    $.ajax({
+        type: "post",
+        url: ctx + "login",
+        data: {
+            "username": username,
+            "password": password,
+            "validateCode": validateCode,
+            "rememberMe": rememberMe
+        },
+        success: function(e) {
+            if (e.code == 0) {
+                location.href = ctx + 'index';
+            } else {
+            	$.modal.closeLoading();
+            	$('.imgcode').click();
+            	$(".code").val("");
+            	$.modal.msg(r.msg);
+            }
+        },
+        error: function (e){
+            console.log("e:" + e)
+        }
+    });
+}
+</script>
+</body>
+</html>
